@@ -5,6 +5,7 @@
     "@webpack-cli/generators": "^2.2.0",
     "babel-jest": "^27.0.5",
     "babel-loader": "^8.2.2",
+    "copy-webpack-plugin": "^9.0.1",
     "html-webpack-plugin": "^5.3.1",
     "jest": "^27.0.5",
     "prettier": "^2.3.1",

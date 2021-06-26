@@ -61,7 +61,6 @@ const redrawBoard = (i, points, path, board) => {
 
 
 const makeMove = (i, points, board) => {
-    moved = true
     proposed = false
 
     if (i == getOppositePoint(path[path.length - 1], points.length/2)) {
@@ -72,6 +71,7 @@ const makeMove = (i, points, board) => {
         return
     }
 
+    moved = true
     //  (4. make sure that the viz actually updates)
     //  (5. implement animations)
     const clickedNodeNewIndex = pathOrder.indexOf(i)
@@ -117,7 +117,7 @@ const unproposeMove = (i, points, board) => {
     if (path.length == 0) { return }
 
     path.pop()
-    undo()
+    undoUnfoldingMove()
     redrawBoard(path[path.length - 1], points, path, board)
 }
 
@@ -237,10 +237,10 @@ const createRobertsGraphEdges = (i, points, board) => {
         localPath = path3d
     }
 
-    edges3d.forEach(edge => edge.remove())
+    localEdges.forEach(edge => edge.remove())
 
     for (let j=0; j<points.length; j++) {
-        if ((j == getOppositePoint(i, points.length/2)) || (j == i) || _.dropRight(path3d).indexOf(j) != -1) {
+        if ((j == getOppositePoint(i, points.length/2)) || (j == i) || _.dropRight(localPath).indexOf(j) != -1) {
             continue
         }
 
@@ -252,10 +252,10 @@ const createRobertsGraphEdges = (i, points, board) => {
             dash: 4,
             strokeWidth: 1,
         })
-        edges3d.push(line)
+        localEdges.push(line)
     }
 
-    return edges3d
+    return localEdges
 }
 
 JXG.Options.text.fontSize = 20;
