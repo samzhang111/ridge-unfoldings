@@ -1,15 +1,3 @@
-# 🚀 Welcome to your new awesome project!
+# Ridge unfoldings of cubes!
 
-This project has been created using **webpack-cli**, you can now run
-
-```
-npm run build
-```
-
-or
-
-```
-yarn build
-```
-
-to bundle your application
+This is a work in progress for a visualization of ridge unfoldings of cubes.
