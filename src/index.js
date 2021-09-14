@@ -199,7 +199,7 @@ const resizeCanvas = () => {
     const cube3d = document.getElementById("cube3d")
 
     cube3d.width = cube3dcontainer.scrollWidth * 2
-    cube3d.height = cube3dcontainer.scrollWidth * 2
+    cube3d.height = cube3dcontainer.scrollHeight * 2
 
     console.log({w: cube3d.width})
 }

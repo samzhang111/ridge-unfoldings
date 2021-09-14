@@ -13,3 +13,11 @@
     height: 100%;
     display: inline-block;
 }
+
+.tall-vw {
+    height: 70vh;
+}
+
+.tall {
+    height: 100%;
+}
