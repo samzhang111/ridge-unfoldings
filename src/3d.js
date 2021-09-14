@@ -2,8 +2,6 @@ import { Scene, WebGLRenderer, PerspectiveCamera, Mesh, BoxGeometry, MeshNormalM
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const canvas = document.querySelector("#cube3d")
-const width = canvas.width / 2
-const height = canvas.height / 2
 let centroid = {x: 0, y: 0, z: 0}
 let scene, camera, renderer, controls
 
@@ -40,9 +38,12 @@ const render = () => {
 }
 
 export const initializeCanvas = () => {
+    const width = canvas.width / 2
+    const height = canvas.height / 2
     renderer = new WebGLRenderer({
         canvas: canvas,
-        alpha: true 
+        alpha: true,
+        antialias: true,
     });
     renderer.setSize( width, height );
 

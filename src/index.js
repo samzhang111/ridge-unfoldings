@@ -1,12 +1,8 @@
 import JXG from "jsxgraph"
 import {setPointColor} from "./jsxhelpers"
 import {
-    absoluteIndexToDirection2d, indicesAfterRidgeMove, getOppositePoint,
-    absoluteIndexToDirection3d
+    indicesAfterRidgeMove, getOppositePoint, absoluteIndexToDirection3d
 } from "./unfoldcube"
-import {
-    drawUnfoldedCube2d, performUnfolding, undoUnfoldingMove,
-} from "./cube"
 
 import {initializeCanvas, performUnfolding3d, undoUnfoldingMove3d} from "./3d"
 
@@ -60,66 +56,6 @@ const redrawBoard = (i, points, path, board) => {
 }
 
 
-const makeMove = (i, points, board) => {
-    proposed = false
-
-    if (i == getOppositePoint(path[path.length - 1], points.length/2)) {
-        return
-    }
-
-    if (_.dropRight(path).indexOf(i) != -1) {
-        return
-    }
-
-    moved = true
-    //  (4. make sure that the viz actually updates)
-    //  (5. implement animations)
-    const clickedNodeNewIndex = pathOrder.indexOf(i)
-
-    let reorder = indicesAfterRidgeMove(clickedNodeNewIndex, points.length / 2)
-    let newOrder = []
-    for (let i = 0; i<reorder.length; i++) {
-        newOrder.push(pathOrder[reorder[i]])
-    }
-
-    pathOrder = newOrder
-}
-
-
-const proposeMove = (i, points, board) => {
-    if (i == getOppositePoint(path[path.length - 1], points.length/2)) {
-        return
-    }
-
-    if (path.indexOf(i) != -1) {
-        return
-    }
-
-    path.push(i)
-
-    redrawBoard(i, points, path, board)
-    const clickedNodeNewIndex = pathOrder.indexOf(i)
-
-    let reorder = indicesAfterRidgeMove(clickedNodeNewIndex, points.length / 2)
-
-    const move = absoluteIndexToDirection2d(clickedNodeNewIndex)
-    performUnfolding(move)
-
-    proposed = true
-}
-
-const unproposeMove = (i, points, board) => {
-    if (moved) { 
-        moved = false
-        return 
-    }
-    if (!proposed) { return }
-    if (path.length == 0) { return }
-
-    path.pop()
-    undoUnfoldingMove()
-    redrawBoard(path[path.length - 1], points, path, board)
-}
 
 const proposeMove3d = (i, points, board) => {
     if (i == getOppositePoint(path3d[path3d.length - 1], points.length/2)) {
@@ -258,13 +194,22 @@ const createRobertsGraphEdges = (i, points, board) => {
     return localEdges
 }
 
+const resizeCanvas = () => {
+    const cube3dcontainer = document.getElementById("cube3dcontainer")
+    const cube3d = document.getElementById("cube3d")
+
+    cube3d.width = cube3dcontainer.scrollWidth * 2
+    cube3d.height = cube3dcontainer.scrollWidth * 2
+
+    console.log({w: cube3d.width})
+}
+
 JXG.Options.text.fontSize = 20;
 // 2d
 const boardWidth = 1.1
-const board = JXG.JSXGraph.initBoard("cubecontrols2d", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false});
-points = createPoints(3, board)
-drawUnfoldedCube2d()
-
-const board3d = JXG.JSXGraph.initBoard("cubecontrols3d", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false});
+const board3d = JXG.JSXGraph.initBoard("cubecontrols3d", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
 points3d = createPoints(4, board3d)
+resizeCanvas()
 initializeCanvas()
+
+M.AutoInit();
