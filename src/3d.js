@@ -74,23 +74,28 @@ export const initializeCanvas = () => {
 }
 
 
-export const performUnfolding3d = (move) => {
-    moves3d.push(move)
+export const performUnfolding3d = (move, internal) => {
     updateCentroid(move)
 
-    const boxGeom =  new BoxGeometry(1, 1, 1)
-    const cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ff00)})
-    cube.position.set(centroid.x, centroid.y, centroid.z)
-    renderedCubes.push(cube)
-    scene.add( cube );
+    if (!internal) {
+        moves3d.push(move)
 
-    renderer.render( scene, camera );
+        const boxGeom =  new BoxGeometry(1, 1, 1)
+        const cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ff00)})
+        cube.position.set(centroid.x, centroid.y, centroid.z)
+        renderedCubes.push(cube)
+        scene.add( cube );
+
+        renderer.render( scene, camera );
+    }
 }
 
-export const undoUnfoldingMove3d = () => {
-    const lastMove = moves3d.pop()
-    const lastRenderedCube = renderedCubes.pop()
+export const undoUnfoldingMove3d = (lastMove, internal) => {
+    if (!internal) {
+        moves3d.pop()
+        const lastRenderedCube = renderedCubes.pop()
+        scene.remove(lastRenderedCube)
+        renderer.render( scene, camera );
+    }
     undoUpdateCentroid(lastMove)
-    scene.remove(lastRenderedCube)
-    renderer.render( scene, camera );
 }
