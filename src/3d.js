@@ -1,13 +1,19 @@
-import { Scene, WebGLRenderer, PerspectiveCamera, Mesh, BoxGeometry, MeshNormalMaterial, Color, DirectionalLight } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, Mesh, BoxGeometry, MeshNormalMaterial, MeshLambertMaterial, Color, DirectionalLight, HemisphereLight, Vector2, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const canvas = document.querySelector("#cube3d")
 let centroid = {x: 0, y: 0, z: 0}
 let scene, camera, renderer, controls
+let currentCube, lastCube
 
 // move = {direction, sign, cube}
 const moves3d = []
 const renderedCubes = []
+const centroidToCubes = {}
+
+const centroidToString = () => {
+    return `${centroid.x}-${centroid.y}-${centroid.z}`
+}
 
 const updateCentroid = move => {
     if (move.direction == 'x') {
@@ -37,6 +43,9 @@ const render = () => {
     renderer.render( scene, camera );
 }
 
+const blueMaterial = new MeshLambertMaterial({color: new Color(0x0000ff)})
+const normalMaterial = new MeshNormalMaterial()
+
 export const initializeCanvas = () => {
     const width = canvas.width / 2
     const height = canvas.height / 2
@@ -55,39 +64,62 @@ export const initializeCanvas = () => {
     controls.staticMoving = true;
     controls.dynamicDampingFactor = 0.3;
 
-    camera.position.set( 7, 8, 9 );
+    camera.position.set( 5, 6, 7 );
     camera.lookAt( 0, 0, 0 );
     controls.addEventListener( 'change', render )
 
     scene = new Scene();
     scene.background = null
 
-    const directionalLight = new DirectionalLight( 0xffffff, 0.5 )
-    scene.add( directionalLight )
+    //const light = new DirectionalLight( 0xffffff, 0.5 )
+    const light = new HemisphereLight( 0xffffff, 0x080820, 1 );
+    scene.add( light )
 
     const boxGeom =  new BoxGeometry(1, 1, 1)
-    let cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ff00)});
+    //let cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ffff)});
+    const cube = new Mesh(boxGeom, blueMaterial)
     cube.position.set(centroid.x, centroid.y, centroid.z)
+    currentCube = cube
+    lastCube = cube
+    renderedCubes.push(cube)
     scene.add( cube )
 
     renderer.render( scene, camera );
 }
 
+const resetMaterialOnAllCubes = () => {
+    renderedCubes.forEach(cube => {
+        cube.material = normalMaterial
+    })
+}
 
 export const performUnfolding3d = (move, internal) => {
+    resetMaterialOnAllCubes()
     updateCentroid(move)
 
-    if (!internal) {
+    if (internal) {
+        let cube = centroidToCubes[centroidToString()]
+        cube.material = blueMaterial
+
+        lastCube = currentCube
+        currentCube = cube
+    }
+    else {
         moves3d.push(move)
 
         const boxGeom =  new BoxGeometry(1, 1, 1)
-        const cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ff00)})
+        //const cube = new Mesh(boxGeom, new MeshLambertMaterial({color: new Color(0x0000ff)}))
+        const cube = new Mesh(boxGeom, blueMaterial)
         cube.position.set(centroid.x, centroid.y, centroid.z)
         renderedCubes.push(cube)
+        centroidToCubes[centroidToString()] = cube
+        lastCube = currentCube
+        currentCube = cube
         scene.add( cube );
 
-        renderer.render( scene, camera );
+        controls.target = new Vector3(centroid.x/2, centroid.y/2, centroid.z/2)
     }
+    renderer.render( scene, camera );
 }
 
 export const undoUnfoldingMove3d = (lastMove, internal) => {
@@ -95,7 +127,13 @@ export const undoUnfoldingMove3d = (lastMove, internal) => {
         moves3d.pop()
         const lastRenderedCube = renderedCubes.pop()
         scene.remove(lastRenderedCube)
-        renderer.render( scene, camera );
     }
+
+    resetMaterialOnAllCubes()
+
+    lastCube.material = blueMaterial
+    currentCube = lastCube
     undoUpdateCentroid(lastMove)
+    controls.target = new Vector3(centroid.x/2, centroid.y/2, centroid.z/2)
+    renderer.render( scene, camera );
 }

@@ -9,6 +9,7 @@ import {initializeCanvas, performUnfolding3d, undoUnfoldingMove3d} from "./3d"
 let visitedNodes=[], points3d = [], pathOrder3d = _.range(8), moved3d=false, proposed3d=false
 let edges3d = [], pathLines3d = []
 let treeEdges = [], internal = false
+let robertsEdges = []
 
 // this holds onto the current node
 // start on 0
@@ -24,18 +25,6 @@ const getName = (i, n) => {
 
 
 const redrawBoard = (i, points, path, board) => {
-    pathLines3d.forEach(line => line.remove())
-    for (let j=0; j<path.length; j++) {
-        pathLines3d.push(board.create("line", [points[path[j][0]], points[path[j][1]]], {
-                    straightFirst: false,
-                    straightLast: false,
-                    strokeColor: 'black',
-                    highlightStrokeColor: 'black',
-                    dash: 0,
-                    strokeWidth: 4,
-        }))
-    }
-
     points.forEach(point => {
         setPointColor(point, "red")
     })
@@ -58,7 +47,7 @@ const redrawBoard = (i, points, path, board) => {
     let n = points.length / 2
     setPointColor(points[getOppositePoint(i, n)], "black")
     setPointColor(points[i], "blue")
-    createRobertsGraphEdges(i, points, board)
+    createRobertsGraphEdges(i, points, treeEdges, board)
 }
 
 
@@ -181,7 +170,8 @@ const createPoints = (n, board) => {
         let x = Math.cos(angle)
         let y = Math.sin(angle)
         let p = board.create('point',[x, y], {
-            name: i-1,//getName(i, n),
+            name: '',
+            //name: i-1,//getName(i, n),
             size:8,
             fixed: true,
         });
@@ -196,45 +186,67 @@ const createPoints = (n, board) => {
     }
 
     visitedNodes.push(0)
+    initializeRobertsEdges(points, board)
     redrawBoard(0, points, treeEdges, board)
 
     return points
 }
 
 
-const createRobertsGraphEdges = (i, points, board) => {
-    let localEdges
-    localEdges = edges3d
-    localEdges.forEach(edge => edge.remove())
+const initializeRobertsEdges = (points, board) => {
+    for (let i=0; i<points.length; i++) {
+        let row = []
+        for (let j=i+1; j<points.length; j++) {
+            // can't move to opposite point
+            let line
+            if (j != getOppositePoint(i, points.length/2)) {
+                line = board.create("line", [points[i], points[j]], {
+                    straightFirst: false,
+                    straightLast: false,
+                    strokeColor: 'black',
+                    highlightStrokeColor: 'black',
+                    strokeWidth: 0.2,
+                    fixed: true,
+                })
+            }
 
+            row.push(line)
+        }
+
+        robertsEdges.push(row)
+    }
+}
+
+const createRobertsGraphEdges = (i, points, treeEdges, board) => {
     for (let j=0; j<points.length; j++) {
-        // can't move to opposite point
-        if (j == getOppositePoint(i, points.length/2)) {
-            continue
-        }
-
-        // can't move to self
-        if (j == i) {
-            continue
-        }
-
         // can't move to visited nodes
-        if (_.dropRight(visitedNodes).indexOf(j) != -1) {
-            continue
-        }
 
-        let line = board.create("line", [points[i], points[j]], {
-            straightFirst: false,
-            straightLast: false,
-            strokeColor: 'black',
-            highlightStrokeColor: 'black',
-            dash: 4,
-            strokeWidth: 1,
-        })
-        localEdges.push(line)
+        for (let k=j+1; k<points.length; k++) {
+            let strokeWidth = 0.2
+            if (k == getOppositePoint(j, points.length/2)) {
+                continue
+            }
+
+            if (j == k) {
+                continue
+            }
+
+            if ((_.dropRight(visitedNodes).indexOf(j) == -1 && k == i) ||
+                (_.dropRight(visitedNodes).indexOf(k) == -1 && j == i)) {
+                strokeWidth = 3
+            }
+
+            robertsEdges[j][k - j - 1].setAttribute({strokeWidth, strokeColor: 'black', highlightStrokeColor: 'black'})
+        }
     }
 
-    return localEdges
+    for (let j=0; j<treeEdges.length; j++) {
+        let edge = treeEdges[j]
+        let x = Math.min(edge[0], edge[1])
+        let y = Math.max(edge[0], edge[1])
+
+        robertsEdges[x][y - x - 1].setAttribute({strokeWidth: 3, strokeColor: 'green', highlightStrokeColor: 'green'})
+    }
 }
 
 const resizeCanvas = () => {
