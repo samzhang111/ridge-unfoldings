@@ -1,9 +1,9 @@
-import { Scene, WebGLRenderer, PerspectiveCamera, Mesh, BoxGeometry, MeshNormalMaterial, MeshLambertMaterial, Color, DirectionalLight, HemisphereLight, Vector2, Vector3 } from 'three';
+import { HemisphereLight, Mesh, BoxGeometry, MeshNormalMaterial, MeshLambertMaterial, Color, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { initializeCanvas, resetSceneObjects, getThreeObjects } from "./shared-three"
 
-const canvas = document.querySelector("#cube3d")
+const canvas = document.querySelector("#viz")
 let centroid = {x: 0, y: 0, z: 0}
-let scene, camera, renderer, controls
 let currentCube, lastCube
 
 // move = {direction, sign, cube}
@@ -11,18 +11,16 @@ let moves3d = []
 let renderedCubes = []
 let centroidToCubes = {}
 
+const blueMaterial = new MeshLambertMaterial({color: new Color(0x0000ff)})
+const normalMaterial = new MeshNormalMaterial()
+
 export const resetScene = () => {
     centroid = {x: 0, y: 0, z: 0}
     moves3d = []
     renderedCubes = []
     centroidToCubes = {}
 
-    while(scene.children.length > 0){ 
-        scene.remove(scene.children[0]); 
-    }
-
-    controls.target = new Vector3(0, 0, 0)
-    renderer.render( scene, camera );
+    resetSceneObjects()
 
     initializeScene()
 }
@@ -56,13 +54,13 @@ const undoUpdateCentroid = move => {
 }
 
 const render = () => {
+    let { scene, camera, renderer } = getThreeObjects()
     renderer.render( scene, camera );
 }
 
-const blueMaterial = new MeshLambertMaterial({color: new Color(0x0000ff)})
-const normalMaterial = new MeshNormalMaterial()
-
 const initializeScene = () => {
+    let {scene} = getThreeObjects()
+
     const light = new HemisphereLight( 0xffffff, 0x080820, 1 );
     scene.add( light )
 
@@ -76,34 +74,11 @@ const initializeScene = () => {
     scene.add( cube )
     centroidToCubes[centroidToString()] = cube
 
-    renderer.render( scene, camera );
+    render()
 }
 
-export const initializeCanvas = () => {
-    const width = canvas.width / 2
-    const height = canvas.height / 2
-    renderer = new WebGLRenderer({
-        canvas: canvas,
-        alpha: true,
-        antialias: true,
-    });
-    renderer.setSize( width, height );
-
-    camera = new PerspectiveCamera( 45, width / height, 1, 500 );
-    controls = new OrbitControls(camera, canvas)
-    controls.rotateSpeed = 1.0;
-    controls.panSpeed = 0.8;
-    controls.enableZoom = false
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
-
-    camera.position.set( 5, 6, 7 );
-    camera.lookAt( 0, 0, 0 );
-    controls.addEventListener( 'change', render )
-
-    scene = new Scene();
-    scene.background = null
-
+export const initializeCubeCanvas = () => {
+    initializeCanvas()
     initializeScene()
 }
 
@@ -114,6 +89,8 @@ const resetMaterialOnAllCubes = () => {
 }
 
 export const performUnfolding3d = (move, internal) => {
+    let {scene, controls} = getThreeObjects()
+
     resetMaterialOnAllCubes()
     updateCentroid(move)
 
@@ -139,10 +116,12 @@ export const performUnfolding3d = (move, internal) => {
 
         controls.target = new Vector3(centroid.x/2, centroid.y/2, centroid.z/2)
     }
-    renderer.render( scene, camera );
+    
+    render()
 }
 
 export const undoUnfoldingMove3d = (lastMove, internal) => {
+    let {scene, controls} = getThreeObjects()
     if (!internal) {
         moves3d.pop()
         const lastRenderedCube = renderedCubes.pop()
@@ -155,5 +134,6 @@ export const undoUnfoldingMove3d = (lastMove, internal) => {
     currentCube = lastCube
     undoUpdateCentroid(lastMove)
     controls.target = new Vector3(centroid.x/2, centroid.y/2, centroid.z/2)
-    renderer.render( scene, camera );
+    
+    render()
 }

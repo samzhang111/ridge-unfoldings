@@ -3,7 +3,7 @@ import {
     indicesAfterRidgeMove, getOppositePoint, absoluteIndexToDirection3d
 } from "./unfoldcube"
 import { createPoints, createControllerEdges, redrawBoard, proposeMove3d, unproposeMove3d, makeMove3d, createEdges } from "./shared-controls"
-import {initializeCanvas, performUnfolding3d, undoUnfoldingMove3d, resetScene} from "./three-cube"
+import {initializeCubeCanvas, performUnfolding3d, undoUnfoldingMove3d, resetScene} from "./three-cube"
 
 /***************************
  * Initialization shared across all polytopes
@@ -112,23 +112,12 @@ cubeConfiguration = {
  * Generic view setup
 ***************************/
 
-const resizeCanvas = () => {
-    const cube3dcontainer = document.getElementById("cube3dcontainer")
-    const cube3d = document.getElementById("cube3d")
-
-    cube3d.width = cube3dcontainer.scrollWidth * 2
-    cube3d.height = cube3dcontainer.scrollHeight * 2
-}
-
-
 JXG.Options.text.fontSize = 20;
 const boardWidth = 1.1
-board3d = JXG.JSXGraph.initBoard("cubecontrols3d", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
+board3d = JXG.JSXGraph.initBoard("controls", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
 points3d = createPoints(4, getBoardObjects, cubeConfiguration)
 validEdges = createEdges(getBoardObjects(), cubeConfiguration)
-
-resizeCanvas()
-initializeCanvas()
+initializeCubeCanvas()
 
 M.AutoInit();
 
