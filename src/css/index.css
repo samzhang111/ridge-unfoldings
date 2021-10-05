@@ -1,6 +1,6 @@
 #cubecontrols3d {
-    width: 300px;
-    height: 300px;
+    width: 500px;
+    height: 500px;
     display: inline-block;
 }
 
@@ -14,10 +14,18 @@
     display: inline-block;
 }
 
+.left-pane {
+    border-right: solid;
+}
+
 .tall-vw {
     height: 70vh;
 }
 
-.tall {
-    height: 100%;
+.control-graph {
+    margin: 10vh auto;
+}
+
+.reset-button {
+    margin: 1em auto;
 }

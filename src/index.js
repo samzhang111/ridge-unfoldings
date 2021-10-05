@@ -4,16 +4,45 @@ import {
     indicesAfterRidgeMove, getOppositePoint, absoluteIndexToDirection3d
 } from "./unfoldcube"
 
-import {initializeCanvas, performUnfolding3d, undoUnfoldingMove3d} from "./3d"
+import {initializeCanvas, performUnfolding3d, undoUnfoldingMove3d, resetScene} from "./3d"
 
+let board3d
 let visitedNodes=[], points3d = [], pathOrder3d = _.range(8), moved3d=false, proposed3d=false
 let edges3d = [], pathLines3d = []
 let treeEdges = [], internal = false
 let robertsEdges = []
+let currentNode = 0
+
+const VISITABLE_NODE_COLOR = "black"
+const UNVISITABLE_NODE_COLOR = "red"
 
 // this holds onto the current node
 // start on 0
-let currentNode = 0
+
+const resetAll = () => {
+    points3d.forEach(point => {
+        board3d.removeObject(point)
+    })
+
+    robertsEdges.forEach(edge => {
+        board3d.removeObject(edge)
+    })
+
+    visitedNodes=[]
+    points3d = []
+    pathOrder3d = _.range(8)
+    moved3d=false
+    proposed3d=false
+    edges3d = []
+    pathLines3d = []
+    treeEdges = []
+    internal = false
+    robertsEdges = []
+    currentNode = 0
+
+    points3d = createPoints(4, board3d)
+    resetScene()
+}
 
 const getName = (i, n) => {
     if (i <= n) {
@@ -26,26 +55,26 @@ const getName = (i, n) => {
 
 const redrawBoard = (i, points, path, board) => {
     points.forEach(point => {
-        setPointColor(point, "red")
+        setPointColor(point, VISITABLE_NODE_COLOR)
     })
 
     path.forEach(pair => {
         let x = pair[0]
         let y = pair[1]
 
-        setPointColor(points[x], "black")
-        setPointColor(points[y], "black")
+        setPointColor(points[x], UNVISITABLE_NODE_COLOR)
+        setPointColor(points[y], UNVISITABLE_NODE_COLOR)
 
         if (x == i) {
-            setPointColor(points[y], "#990000")
+            setPointColor(points[y], VISITABLE_NODE_COLOR)
         }
         else if (y == i) {
-            setPointColor(points[x], "#990000")
+            setPointColor(points[x], VISITABLE_NODE_COLOR)
         }
     })
 
     let n = points.length / 2
-    setPointColor(points[getOppositePoint(i, n)], "black")
+    setPointColor(points[getOppositePoint(i, n)], UNVISITABLE_NODE_COLOR)
     setPointColor(points[i], "blue")
     createRobertsGraphEdges(i, points, treeEdges, board)
 }
@@ -152,18 +181,6 @@ const makeMove3d = (i, points, board) => {
 
 
 const createPoints = (n, board) => {
-    let proposer, unproposer, mover
-    if (n == 3) {
-        proposer = proposeMove
-        unproposer = unproposeMove
-        mover = makeMove
-    }
-    else if (n == 4) {
-        proposer = proposeMove3d
-        unproposer = unproposeMove3d
-        mover = makeMove3d
-    }
-
     let points = []
     for (let i=1; i<=2*n; i++) {
         let angle = ((i - n) * 2 * Math.PI / (2*n))
@@ -172,17 +189,17 @@ const createPoints = (n, board) => {
         let p = board.create('point',[x, y], {
             name: '',
             //name: i-1,//getName(i, n),
-            size:8,
+            size:24,
             fixed: true,
         });
         points.push(p)
     }
 
     for (let i=0; i<points.length; i++) {
-        points[i].on("mouseover", () => { proposer(i, points, board) } )
-        points[i].on("mouseout", () => { unproposer(i, points, board) } )
-        points[i].on("mousedown", () => { mover(i, points, board) } )
-        points[i].on("touchstart", () => { mover(i, points, board) } )
+        points[i].on("mouseover", () => { proposeMove3d(i, points, board) } )
+        points[i].on("mouseout", () => { unproposeMove3d(i, points, board) } )
+        points[i].on("mousedown", () => { makeMove3d(i, points, board) } )
+        points[i].on("touchstart", () => { makeMove3d(i, points, board) } )
     }
 
     visitedNodes.push(0)
@@ -231,10 +248,14 @@ const createRobertsGraphEdges = (i, points, treeEdges, board) => {
                 continue
             }
 
+            // This shows the available edges that can be traversed to, but it
+            // looks better without it.
+            /*
             if ((_.dropRight(visitedNodes).indexOf(j) == -1 && k == i) ||
                 (_.dropRight(visitedNodes).indexOf(k) == -1 && j == i)) {
                 strokeWidth = 3
             }
+            */
 
             robertsEdges[j][k - j - 1].setAttribute({strokeWidth, strokeColor: 'black', highlightStrokeColor: 'black'})
         }
@@ -260,9 +281,12 @@ const resizeCanvas = () => {
 JXG.Options.text.fontSize = 20;
 
 const boardWidth = 1.1
-const board3d = JXG.JSXGraph.initBoard("cubecontrols3d", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
+board3d = JXG.JSXGraph.initBoard("cubecontrols3d", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
 points3d = createPoints(4, board3d)
 resizeCanvas()
 initializeCanvas()
 
 M.AutoInit();
+
+let resetButton = document.querySelector(".reset-button")
+resetButton.addEventListener("click", resetAll)

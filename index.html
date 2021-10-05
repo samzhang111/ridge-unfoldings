@@ -4,12 +4,15 @@
         <meta charset="utf-8" />
         <title>Cube unfolding</title>
         <link href="index.css" rel="stylesheet"></link>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+          <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     </head>
     <body>
 
         <div class="container" id="3d">
-            <h1>Unfoldings</h1>
+            <h1>4D Unfoldings</h1>
+            <div>Unfold these 4 dimensional objects by clicking on nodes on their corresponding graphs. Your current position is the blue node. You can unfold in the direction of black nodes.</div>
             <div class="col s12">
                 <ul class="tabs">
                     <li class="tab col s6"><a href="#cube_tab" class="active">Cube</a></li>
@@ -19,12 +22,11 @@
 
             <div class="row">
                 <div id="cube_tab" >
-                    <div class="col s3 card-panel teal lighten-5 tall-vw">
-                        <h3>4d cube</h3>
-                        <div>Unfold the 4d cube by clicking on nodes on its Roberts graph. Your current position is the blue node. You can unfold in the direction of red and dark red nodes.</div>
-                        <div id="cubecontrols3d"></div>
+                    <div class="col s5 tall-vw left-pane">
+                        <div id="cubecontrols3d" class="control-graph"></div>
                     </div>
-                    <div class="col s9">
+                    <div class="col s7">
+                        <a class="waves-effect waves-light btn-large reset-button"><i class="material-icons left">autorenew</i>Reset</a>
                         <div id="cube3dcontainer" class="tall-vw">
                             <canvas id="cube3d"></canvas>
                         </div>
@@ -32,12 +34,11 @@
                 </div>
 
                 <div id="simplex_tab" >
-                    <div class="col s3 card-panel teal lighten-5 tall-vw">
-                        <h3>4d simplex</h3>
+                    <div class="col s5 tall-vw left-pane">
                         <div>TODO</div>
                         <div id="simplexcontrols3d"></div>
                     </div>
-                    <div class="col s9">
+                    <div class="col s7">
                         <div id="simplex3dcontainer" class="tall-vw">
                             <canvas id="simplex3d"></canvas>
                         </div>
@@ -46,7 +47,6 @@
             </div>
         </div>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     </body>
     
 </html>

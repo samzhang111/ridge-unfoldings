@@ -7,9 +7,25 @@ let scene, camera, renderer, controls
 let currentCube, lastCube
 
 // move = {direction, sign, cube}
-const moves3d = []
-const renderedCubes = []
-const centroidToCubes = {}
+let moves3d = []
+let renderedCubes = []
+let centroidToCubes = {}
+
+export const resetScene = () => {
+    centroid = {x: 0, y: 0, z: 0}
+    moves3d = []
+    renderedCubes = []
+    centroidToCubes = {}
+
+    while(scene.children.length > 0){ 
+        scene.remove(scene.children[0]); 
+    }
+
+    controls.target = new Vector3(0, 0, 0)
+    renderer.render( scene, camera );
+
+    initializeScene()
+}
 
 const centroidToString = () => {
     return `${centroid.x}-${centroid.y}-${centroid.z}`
@@ -46,6 +62,23 @@ const render = () => {
 const blueMaterial = new MeshLambertMaterial({color: new Color(0x0000ff)})
 const normalMaterial = new MeshNormalMaterial()
 
+const initializeScene = () => {
+    const light = new HemisphereLight( 0xffffff, 0x080820, 1 );
+    scene.add( light )
+
+    const boxGeom =  new BoxGeometry(1, 1, 1)
+    //let cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ffff)});
+    const cube = new Mesh(boxGeom, blueMaterial)
+    cube.position.set(centroid.x, centroid.y, centroid.z)
+    currentCube = cube
+    lastCube = cube
+    renderedCubes.push(cube)
+    scene.add( cube )
+    centroidToCubes[centroidToString()] = cube
+
+    renderer.render( scene, camera );
+}
+
 export const initializeCanvas = () => {
     const width = canvas.width / 2
     const height = canvas.height / 2
@@ -71,20 +104,7 @@ export const initializeCanvas = () => {
     scene = new Scene();
     scene.background = null
 
-    //const light = new DirectionalLight( 0xffffff, 0.5 )
-    const light = new HemisphereLight( 0xffffff, 0x080820, 1 );
-    scene.add( light )
-
-    const boxGeom =  new BoxGeometry(1, 1, 1)
-    //let cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ffff)});
-    const cube = new Mesh(boxGeom, blueMaterial)
-    cube.position.set(centroid.x, centroid.y, centroid.z)
-    currentCube = cube
-    lastCube = cube
-    renderedCubes.push(cube)
-    scene.add( cube )
-
-    renderer.render( scene, camera );
+    initializeScene()
 }
 
 const resetMaterialOnAllCubes = () => {
