@@ -41,3 +41,27 @@ export const indicesAfterRidgeMove = (i, dim) => {
 
     return indices
 }
+
+export const unproposeMove3d = (i, boardObjectGetter, config) => {
+    let boardObjects = boardObjectGetter()
+    let { points, validEdges, treeEdges, board, boardState, pathOrder3d } = boardObjects
+    if (boardState.moved3d) { 
+        boardState.moved3d = false
+        return 
+    }
+
+    if (!boardState.proposed3d) { return }
+    if (treeEdges.length == 0) { return }
+    if (!boardState.internal) {
+        treeEdges.pop()
+    }
+
+    boardState.proposed3d = false
+
+    const clickedNodeNewIndex = pathOrder3d.indexOf(i)
+    const move = absoluteIndexToDirection3d(clickedNodeNewIndex)
+
+    undoUnfoldingMove3d(move, boardState.internal)
+    redrawBoard(boardState.currentNode, boardObjects, config)
+}
+

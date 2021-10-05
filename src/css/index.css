@@ -14,10 +14,6 @@
     display: inline-block;
 }
 
-.left-pane {
-    border-right: solid;
-}
-
 .tall-vw {
     height: 70vh;
 }
@@ -28,4 +24,8 @@
 
 .reset-button {
     margin: 1em auto;
+}
+
+.left-pane {
+    border-right: solid;
 }
