@@ -17,7 +17,8 @@ export const resetSceneObjects = () => {
     }
 
     controls.target = new Vector3(0, 0, 0)
-    renderer.render( scene, camera );
+    camera.position.set( 5, 6, 7 );
+    camera.lookAt( 0, 0, 0 );
 }
 
 const render = () => {
