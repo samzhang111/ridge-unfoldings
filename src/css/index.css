@@ -25,3 +25,7 @@
 .left-pane {
     border-right: solid;
 }
+
+#shape-selectors {
+    margin-bottom: 1em;
+}

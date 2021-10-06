@@ -123,3 +123,20 @@ M.AutoInit();
 
 let resetButton = document.querySelector(".reset-button")
 resetButton.addEventListener("click", resetAll)
+
+const SELECTED_CLASS = "blue"
+
+const selectShape = (shape) => {
+    document.querySelectorAll(".shape-selector").forEach(sel => {
+        if (sel.classList.contains(SELECTED_CLASS)) {
+            sel.classList.remove(SELECTED_CLASS)
+        }
+    })
+
+    let selectedShape = document.querySelector(`#select-${shape}`)
+    selectedShape.classList.add(SELECTED_CLASS)
+}
+
+document.querySelector("#select-cube").addEventListener("click", () => selectShape("cube"))
+document.querySelector("#select-simplex").addEventListener("click", () => selectShape("simplex"))
+document.querySelector("#select-orthoplex").addEventListener("click", () => selectShape("orthoplex"))

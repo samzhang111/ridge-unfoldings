@@ -12,16 +12,15 @@
 
         <div class="container" id="3d">
             <h1>4D Unfoldings</h1>
-            <div>Unfold these 4 dimensional objects by clicking on nodes on their corresponding graphs. Your current position is the blue node. You can unfold in the direction of black nodes.</div>
-            <div class="col s12">
-                <ul class="tabs">
-                    <li class="tab col s6"><a href="#cube_tab" class="active">Cube</a></li>
-                    <li class="tab col s6"><a href="#simplex_tab">Simplex</a></li>
-                </ul>
+            <div id="shape-selectors">
+                <a id="select-cube" class="waves-effect waves-light btn-small shape-selector blue">Cube</a>
+                <a id="select-simplex" class="waves-effect waves-light btn-small shape-selector">Simplex</a>
+                <a id="select-orthoplex" class="waves-effect waves-light btn-small shape-selector">Orthoplex</a>
             </div>
 
+            <div>Unfold these 4 dimensional objects by clicking on nodes on their corresponding graphs. Your current position is the blue node. You can unfold in the direction of black nodes.</div>
+
             <div class="row">
-                <div id="cube_tab" >
                     <div class="col s5 tall-vw left-pane">
                         <div id="controls" class="control-graph"></div>
                     </div>
@@ -31,19 +30,6 @@
                             <canvas id="viz"></canvas>
                         </div>
                     </div>
-                </div>
-
-                <div id="simplex_tab" >
-                    <div class="col s5 tall-vw left-pane">
-                        <div>TODO</div>
-                        <div id="simplexcontrols3d"></div>
-                    </div>
-                    <div class="col s7 right-pane">
-                        <div id="simplex3dcontainer" class="tall-vw">
-                            <canvas id="simplex3d"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
