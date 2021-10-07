@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const canvas = document.querySelector("#viz")
 const container = document.querySelector("#vizcontainer")
+
 let scene, camera, renderer, controls
 
 export const getThreeObjects = () => {
@@ -11,13 +12,14 @@ export const getThreeObjects = () => {
     }
 }
 
-export const resetSceneObjects = () => {
+export const resetSceneObjects = (sceneConfig) => {
+    let {cameraX, cameraY, cameraZ} = sceneConfig
     while(scene.children.length > 0){ 
         scene.remove(scene.children[0]); 
     }
 
     controls.target = new Vector3(0, 0, 0)
-    camera.position.set( 5, 6, 7 );
+    camera.position.set(cameraX, cameraY, cameraZ);
     camera.lookAt( 0, 0, 0 );
 }
 
@@ -31,7 +33,8 @@ export const resizeCanvas = () => {
 }
 
 
-export const initializeCanvas = () => {
+export const initializeCanvas = (sceneConfig) => {
+    let {cameraX, cameraY, cameraZ} = sceneConfig
     resizeCanvas()
 
     const width = canvas.width / 2
@@ -51,7 +54,7 @@ export const initializeCanvas = () => {
     controls.staticMoving = true;
     controls.dynamicDampingFactor = 0.3;
 
-    camera.position.set( 5, 6, 7 );
+    camera.position.set(cameraX, cameraY, cameraZ);
     camera.lookAt( 0, 0, 0 );
     controls.addEventListener( 'change', render )
 

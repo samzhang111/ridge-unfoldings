@@ -1,5 +1,6 @@
 import JXG from "jsxgraph"
 import {setPointColor} from "./jsxhelpers"
+import find from "lodash/find"
 
 const VISITABLE_NODE_COLOR = "black"
 const UNVISITABLE_NODE_COLOR = "red"
@@ -85,8 +86,8 @@ export const createControllerEdges = (i, boardObjects, config) => {
 export const createPoints = (n, boardObjectGetter, config) => {
     let points = []
     let boardObjects = boardObjectGetter()
-    for (let i=1; i<=2*n; i++) {
-        let angle = ((i - n) * 2 * Math.PI / (2*n))
+    for (let i=1; i<=n; i++) {
+        let angle = ((n/2 + i) * 2 * Math.PI / n)
         let x = Math.cos(angle)
         let y = Math.sin(angle)
         let p = boardObjects.board.create('point',[x, y], {
@@ -149,12 +150,12 @@ export const redrawBoard = (i, boardObjects, config) => {
 *********/
 
 const isUnorderedPairInArray = (pair, array) => {
-    return _.find(array, function(edge) { return (Math.min(edge[0], edge[1]) == Math.min(pair[0], pair[1])) && (Math.max(edge[0], edge[1]) == Math.max(pair[0], pair[1])) })
+    return find(array, function(edge) { return (Math.min(edge[0], edge[1]) == Math.min(pair[0], pair[1])) && (Math.max(edge[0], edge[1]) == Math.max(pair[0], pair[1])) })
 }
 
 export const unproposeMove3d = (i, boardObjectGetter, config) => {
     let boardObjects = boardObjectGetter()
-    let { points, validEdges, treeEdges, board, boardState, pathOrder3d } = boardObjects
+    let { points, validEdges, treeEdges, board, boardState } = boardObjects
     if (boardState.moved3d) { 
         boardState.moved3d = false
         return 
@@ -168,16 +169,14 @@ export const unproposeMove3d = (i, boardObjectGetter, config) => {
 
     boardState.proposed3d = false
 
-    const clickedNodeNewIndex = pathOrder3d.indexOf(i)
-
-    config.undoUnfold(clickedNodeNewIndex, boardState)
+    config.undoUnfold(i, boardState)
     redrawBoard(boardState.currentNode, boardObjects, config)
 }
 
 
 export const proposeMove3d = (i, boardObjectGetter, config) => {
     let boardObjects = boardObjectGetter()
-    let { points, validEdges, treeEdges, board, pathOrder3d, boardState, visitedNodes } = boardObjects
+    let { points, validEdges, treeEdges, board, boardState, visitedNodes } = boardObjects
     if (!config.isValidMove(i, boardState.currentNode)) {
         return
     }
@@ -198,8 +197,7 @@ export const proposeMove3d = (i, boardObjectGetter, config) => {
     }
 
     redrawBoard(i, boardObjects, config)
-    const clickedNodeNewIndex = boardObjects.pathOrder3d.indexOf(i)
-    config.unfolder(clickedNodeNewIndex, boardState)
+    config.unfolder(i, boardState)
 
     boardState.proposed3d = true
 }
@@ -207,7 +205,7 @@ export const proposeMove3d = (i, boardObjectGetter, config) => {
 
 export const makeMove3d = (i, boardObjectGetter, config) => {
     let boardObjects = boardObjectGetter()
-    let { points, validEdges, treeEdges, board, boardState, pathOrder3d, visitedNodes } = boardObjects
+    let { points, validEdges, treeEdges, board, boardState, visitedNodes } = boardObjects
     boardState.proposed3d = false
 
     if (!config.isValidMove(i, boardState.currentNode)) {

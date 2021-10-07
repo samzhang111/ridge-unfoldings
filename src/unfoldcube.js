@@ -1,4 +1,4 @@
-import _ from "lodash"
+import range from "lodash/range"
 
 const N_2D = 3
 const N_3D = 4
@@ -31,7 +31,7 @@ export const absoluteIndexToDirection3d = (i) => {
 
 export const indicesAfterRidgeMove = (i, dim) => {
     // returns array of indices after moving point. dim-dimensional cube
-    let indices = _.range(2*dim)
+    let indices = range(2*dim)
     let ix = getOppositePoint(i, dim)
 
     indices[0] = i
@@ -41,27 +41,3 @@ export const indicesAfterRidgeMove = (i, dim) => {
 
     return indices
 }
-
-export const unproposeMove3d = (i, boardObjectGetter, config) => {
-    let boardObjects = boardObjectGetter()
-    let { points, validEdges, treeEdges, board, boardState, pathOrder3d } = boardObjects
-    if (boardState.moved3d) { 
-        boardState.moved3d = false
-        return 
-    }
-
-    if (!boardState.proposed3d) { return }
-    if (treeEdges.length == 0) { return }
-    if (!boardState.internal) {
-        treeEdges.pop()
-    }
-
-    boardState.proposed3d = false
-
-    const clickedNodeNewIndex = pathOrder3d.indexOf(i)
-    const move = absoluteIndexToDirection3d(clickedNodeNewIndex)
-
-    undoUnfoldingMove3d(move, boardState.internal)
-    redrawBoard(boardState.currentNode, boardObjects, config)
-}
-

@@ -1,17 +1,18 @@
 import JXG from "jsxgraph"
-import {
-    indicesAfterRidgeMove, getOppositePoint, absoluteIndexToDirection3d
-} from "./unfoldcube"
 import { createPoints, createControllerEdges, redrawBoard, proposeMove3d, unproposeMove3d, makeMove3d, createEdges } from "./shared-controls"
-import {initializeCubeCanvas, performUnfolding3d, undoUnfoldingMove3d, resetScene} from "./three-cube"
+import {resetSceneObjects } from "./shared-three"
+import {initializeCubeCanvas, performUnfoldingCube, undoUnfoldingCube, resetSceneCube} from "./three-cube"
+import {initializeSimplexCanvas, performUnfoldingSimplex, undoUnfoldingSimplex, resetSceneSimplex} from "./three-plex"
+import { indicesAfterRidgeMove, getOppositePoint, absoluteIndexToDirection3d } from "./unfoldcube"
+import { directionFromCenterSign } from "./unfoldplex"
+import range from "lodash/range"
 
 /***************************
  * Initialization shared across all polytopes
 ***************************/
 
 let board3d
-let visitedNodes=[0], points3d = [], pathOrder3d = _.range(8)
-let edges3d = [], pathLines3d = []
+let visitedNodes=[0], points3d = [], pathOrder3d = range(8)
 let treeEdges = []
 let validEdges = []
 let boardState = {
@@ -21,11 +22,13 @@ let boardState = {
     proposed3d: false,
 }
 let cubeConfiguration = {}
+let simplexConfiguration = {}
+let orthoplexConfiguration = {}
+let selectedShape = "cube"
 
 const getBoardObjects = () => {
     return {
         points: points3d,
-        pathOrder3d,
         validEdges,
         treeEdges,
         board: board3d,
@@ -34,7 +37,7 @@ const getBoardObjects = () => {
     }
 }
 
-const resetAll = () => {
+const clearAll = (config) => {
     points3d.forEach(point => {
         board3d.removeObject(point)
     })
@@ -52,18 +55,13 @@ const resetAll = () => {
 
     visitedNodes=[0]
     points3d = []
-    pathOrder3d = _.range(8)
-    edges3d = []
-    pathLines3d = []
+    pathOrder3d = config.defaultPathOrder
     treeEdges = []
     validEdges = []
+}
 
-    let boardObjects = getBoardObjects()
-    points3d = createPoints(4, getBoardObjects, cubeConfiguration)
-
-    boardObjects = getBoardObjects()
-    validEdges = createEdges(boardObjects, cubeConfiguration)
-    resetScene()
+const resetAll = () => {
+    selectShape(selectedShape)
 }
 
 /***************************
@@ -75,13 +73,15 @@ const isValidMoveRobertsGraph = (i, j) => {
 }
 
 const makeCubeUnfolding = (index, boardState) => {
-    const move = absoluteIndexToDirection3d(index)
-    performUnfolding3d(move, boardState.internal)
+    const absoluteIndex = pathOrder3d.indexOf(index)
+    const move = absoluteIndexToDirection3d(absoluteIndex)
+    performUnfoldingCube(move, boardState.internal)
 }
 
 const undoCubeUnfolding = (index, boardState) => {
-    const move = absoluteIndexToDirection3d(index)
-    undoUnfoldingMove3d(move, boardState.internal)
+    const absoluteIndex = pathOrder3d.indexOf(index)
+    const move = absoluteIndexToDirection3d(absoluteIndex)
+    undoUnfoldingCube(move, boardState.internal)
 }
 
 const makeCubeMove = (i, boardObjectGetter, config) => {
@@ -93,11 +93,45 @@ const makeCubeMove = (i, boardObjectGetter, config) => {
     for (let i = 0; i<reorder.length; i++) {
         newOrder.push(pathOrder3d[reorder[i]])
     }
-
+ 
     pathOrder3d = newOrder
 
     redrawBoard(i, getBoardObjects(), config)
 }
+
+
+/***************************
+ * Simplex specific functions
+***************************/
+
+const isValidMoveSimplex = (i, j) => {
+    return (i != j)
+}
+
+const makeSimplexUnfolding = (index, boardState) => {
+    const direction = directionFromCenterSign(index, pathOrder3d.center, pathOrder3d.sign)
+    performUnfoldingSimplex(direction, boardState.internal)
+}
+
+const undoSimplexUnfolding = (index, boardState) => {
+    const direction = directionFromCenterSign(index, boardState.currentNode, pathOrder3d.sign * -1)
+    undoUnfoldingSimplex(direction, boardState.internal)
+}
+
+const makeSimplexMove = (i, boardObjectGetter, config) => {
+    makeMove3d(i, boardObjectGetter, config)
+
+    pathOrder3d.center = i
+    pathOrder3d.sign *= -1
+
+    redrawBoard(i, getBoardObjects(), config)
+}
+
+
+
+/***************************
+ * Configurations
+***************************/
 
 cubeConfiguration = {
     proposer: proposeMove3d,
@@ -106,6 +140,30 @@ cubeConfiguration = {
     unfolder: makeCubeUnfolding,
     undoUnfold: undoCubeUnfolding,
     mover: makeCubeMove,
+    defaultPathOrder: range(8),
+    sceneConfiguration: {
+        cameraX: 5,
+        cameraY: 6,
+        cameraZ: 7,
+    }
+}
+
+simplexConfiguration = {
+    proposer: proposeMove3d,
+    unproposer: unproposeMove3d,
+    isValidMove: isValidMoveSimplex,
+    unfolder: makeSimplexUnfolding,
+    undoUnfold: undoSimplexUnfolding,
+    mover: makeSimplexMove,
+    defaultPathOrder: {
+        center: 0,
+        sign: 1,
+    },
+    sceneConfiguration: {
+        cameraX: 2,
+        cameraY: 3,
+        cameraZ: 4,
+    }
 }
 
 /***************************
@@ -115,9 +173,10 @@ cubeConfiguration = {
 JXG.Options.text.fontSize = 20;
 const boardWidth = 1.1
 board3d = JXG.JSXGraph.initBoard("controls", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
-points3d = createPoints(4, getBoardObjects, cubeConfiguration)
+points3d = createPoints(8, getBoardObjects, cubeConfiguration)
+pathOrder3d = range(8)
 validEdges = createEdges(getBoardObjects(), cubeConfiguration)
-initializeCubeCanvas()
+initializeCubeCanvas(cubeConfiguration.sceneConfiguration)
 
 M.AutoInit();
 
@@ -127,14 +186,48 @@ resetButton.addEventListener("click", resetAll)
 const SELECTED_CLASS = "blue"
 
 const selectShape = (shape) => {
+    selectedShape = shape
+
+    /*******
+    // Change colors of buttons
+    *******/
     document.querySelectorAll(".shape-selector").forEach(sel => {
         if (sel.classList.contains(SELECTED_CLASS)) {
             sel.classList.remove(SELECTED_CLASS)
         }
     })
 
-    let selectedShape = document.querySelector(`#select-${shape}`)
-    selectedShape.classList.add(SELECTED_CLASS)
+    let selectedShapeElem = document.querySelector(`#select-${shape}`)
+    selectedShapeElem.classList.add(SELECTED_CLASS)
+
+    /*******
+    // Reset app using relevant configuration
+    *******/
+
+    let config 
+    let numPoints
+
+    if (shape == "cube") {
+        config = cubeConfiguration
+        numPoints = 8
+        resetSceneCube(config.sceneConfiguration)
+
+        clearAll(config)
+        points3d = createPoints(numPoints, getBoardObjects, config)
+        validEdges = createEdges(getBoardObjects(), config)
+        initializeCubeCanvas(config.sceneConfiguration)
+    }
+    else if (shape == "simplex") {
+        config = simplexConfiguration
+        numPoints = 5
+        resetSceneSimplex(config.sceneConfiguration)
+
+        clearAll(config)
+        points3d = createPoints(numPoints, getBoardObjects, config)
+        validEdges = createEdges(getBoardObjects(), config)
+        initializeSimplexCanvas(config.sceneConfiguration)
+    }
+
 }
 
 document.querySelector("#select-cube").addEventListener("click", () => selectShape("cube"))

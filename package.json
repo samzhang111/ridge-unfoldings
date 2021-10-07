@@ -21,6 +21,7 @@
     "isomer": "^0.2.6",
     "jsxgraph": "^1.2.3",
     "lodash": "^4.17.21",
+    "mathjs": "^9.5.0",
     "three": "^0.129.0"
   },
   "name": "my-webpack-project",
