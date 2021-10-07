@@ -193,6 +193,10 @@ const undoOrthoplexUnfolding = (index, boardState) => {
 }
 
 const makeOrthoplexMove = (i, boardObjectGetter, config) => {
+    if (!isValidMoveOrthoplex(i, boardState.currentNode)) {
+        return
+    }
+
     makeMove3d(i, boardObjectGetter, config)
 
     redrawBoard(i, getBoardObjects(), config)

@@ -2,8 +2,11 @@ import JXG from "jsxgraph"
 import {setPointColor} from "./jsxhelpers"
 import find from "lodash/find"
 
-const VISITABLE_NODE_COLOR = "black"
+const CURRENT_NODE_COLOR = "black"
+const VISITABLE_NODE_COLOR = "lime"
+const VISITABLE_NODE_COLOR_INTERIOR = "green"
 const UNVISITABLE_NODE_COLOR = "red"
+const UNVISITABLE_NODE_COLOR_INTERIOR = "#990000"
 
 
 /*********
@@ -119,28 +122,28 @@ export const redrawBoard = (i, boardObjects, config) => {
         setPointColor(point, VISITABLE_NODE_COLOR)
     })
 
-    treeEdges.forEach(pair => {
-        let x = pair[0]
-        let y = pair[1]
-
-        setPointColor(points[x], UNVISITABLE_NODE_COLOR)
-        setPointColor(points[y], UNVISITABLE_NODE_COLOR)
-
-        if (x == i) {
-            setPointColor(points[y], VISITABLE_NODE_COLOR)
-        }
-        else if (y == i) {
-            setPointColor(points[x], VISITABLE_NODE_COLOR)
-        }
-    })
-
     for (let j = 0; j < points.length; j++) {
         if (!config.isValidMove(i, j)) {
             setPointColor(points[j], UNVISITABLE_NODE_COLOR)
         }
     }
 
-    setPointColor(points[i], "blue")
+    treeEdges.forEach(pair => {
+        let x = pair[0]
+        let y = pair[1]
+
+        setPointColor(points[x], UNVISITABLE_NODE_COLOR_INTERIOR)
+        setPointColor(points[y], UNVISITABLE_NODE_COLOR_INTERIOR)
+
+        if (x == i) {
+            setPointColor(points[y], VISITABLE_NODE_COLOR_INTERIOR)
+        }
+        else if (y == i) {
+            setPointColor(points[x], VISITABLE_NODE_COLOR_INTERIOR)
+        }
+    })
+
+    setPointColor(points[i], CURRENT_NODE_COLOR)
     createControllerEdges(i, boardObjects, config)
 }
 

@@ -12,26 +12,27 @@
 
         <div class="container" id="3d">
             <h1>4D Unfoldings</h1>
+            <div class="instructions">By <a href="https://sam.zhang.fyi">Sam Zhang</a>, <a href="https://www.mcs.uvawise.edu/msh3e/">Matt Harvey</a>, and <a href="https://satyandevadoss.org/">Satyan Devadoss</a></div>
+            <div id="unfolding-parent">
+
+                    <div id="unfolding-controls">
             <div id="shape-selectors">
                 <a id="select-cube" class="waves-effect waves-light btn-small shape-selector blue">Cube</a>
                 <a id="select-simplex" class="waves-effect waves-light btn-small shape-selector">Simplex</a>
                 <a id="select-orthoplex" class="waves-effect waves-light btn-small shape-selector">Orthoplex</a>
             </div>
 
-            <div id="unfolding-parent">
-
-                    <div id="unfolding-controls">
-                        <div class="instructions">Click black nodes to unfold in that direction</div>
-                        <div class="subinstructions">Directions that are invalid from your current position are colored red.</div>
+                        <div class="instructions">Click green nodes to unfold</div>
+                        <div class="subinstructions">Light green nodes are not yet visited and valid, light red nodes are not yet visited and invalid. Dark green nodes can be revisited, and dark red nodes cannot be revisited from your current position.</div>
                         <div id="controls" class="control-graph"></div>
                     </div>
 
                     <div id="unfolding-viz">
-                        <a class="waves-effect waves-light btn-large reset-button"><i class="material-icons left">autorenew</i>Reset</a>
+                        <a class="waves-effect waves-light btn-small reset-button"><i class="material-icons left">autorenew</i>Reset</a>
                         <div id="vizcontainer">
                             <canvas id="viz"></canvas>
                         </div>
-                        <div class="instructions right">Click and drag to rotate</div>
+                        <div class="instructions right">Drag to rotate</div>
                     </div>
             </div>
         </div>

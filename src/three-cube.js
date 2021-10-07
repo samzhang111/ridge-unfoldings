@@ -1,12 +1,8 @@
-import { HemisphereLight, Mesh, BoxGeometry, MeshNormalMaterial, MeshLambertMaterial, Color, Vector3 } from 'three';
-import { initializeCanvas, resetSceneObjects, getThreeObjects } from "./shared-three"
+import { Mesh, BoxGeometry, Vector3 } from 'three';
+import { initializeCanvas, resetSceneObjects, getThreeObjects, currentNodeMaterial, normalMaterial } from "./shared-three"
 
-const transparent = true
-const opacity = 0.9
-const wireframe = false
+
 const canvas = document.querySelector("#viz")
-const blueMaterial = new MeshLambertMaterial({color: new Color(0x0000ff), opacity, wireframe, transparent})
-const normalMaterial = new MeshNormalMaterial({opacity, wireframe, transparent})
 
 /****************************
  * Cube-specific data structures
@@ -70,7 +66,7 @@ export const performUnfoldingCube = (move, internal) => {
 
     if (internal) {
         let cube = centroidToCubes[centroidToString()]
-        cube.material = blueMaterial
+        cube.material = currentNodeMaterial
 
         lastCube = currentCube
         currentCube = cube
@@ -78,7 +74,7 @@ export const performUnfoldingCube = (move, internal) => {
     else {
         const boxGeom =  new BoxGeometry(1, 1, 1)
         //const cube = new Mesh(boxGeom, new MeshLambertMaterial({color: new Color(0x0000ff)}))
-        const cube = new Mesh(boxGeom, blueMaterial)
+        const cube = new Mesh(boxGeom, currentNodeMaterial)
         cube.position.set(centroid.x, centroid.y, centroid.z)
         renderedCubes.push(cube)
         centroidToCubes[centroidToString()] = cube
@@ -101,7 +97,7 @@ export const undoUnfoldingCube = (lastMove, internal) => {
 
     resetMaterialOnAllCubes()
 
-    lastCube.material = blueMaterial
+    lastCube.material = currentNodeMaterial
     currentCube = lastCube
     undoUpdateCentroid(lastMove)
     controls.target = new Vector3(centroid.x/2, centroid.y/2, centroid.z/2)
@@ -121,12 +117,9 @@ const render = () => {
 const initializeScene = () => {
     let {scene} = getThreeObjects()
 
-    const light = new HemisphereLight( 0xffffff, 0x080820, 1 );
-    scene.add( light )
-
     const boxGeom =  new BoxGeometry(1, 1, 1)
     //let cube = new Mesh(boxGeom, new MeshNormalMaterial(), {color: new Color(0x00ffff)});
-    const cube = new Mesh(boxGeom, blueMaterial)
+    const cube = new Mesh(boxGeom, currentNodeMaterial)
     cube.position.set(centroid.x, centroid.y, centroid.z)
     currentCube = cube
     lastCube = cube

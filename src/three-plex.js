@@ -1,15 +1,9 @@
 import flatten from "lodash/flatten"
 import round from "lodash/round"
 import { matrix, multiply } from "mathjs"
-import { HemisphereLight, Mesh, PolyhedronGeometry, MeshNormalMaterial, MeshLambertMaterial, Color, Vector3 } from 'three'
+import { Mesh, Vector3 } from 'three'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
-import { initializeCanvas, resetSceneObjects, getThreeObjects } from "./shared-three"
-
-const transparent = true
-const opacity = 0.9
-const wireframe = false
-const blueMaterial = new MeshLambertMaterial({color: new Color(0x0000ff), wireframe, opacity, transparent})
-const normalMaterial = new MeshNormalMaterial({wireframe, opacity, transparent})
+import { initializeCanvas, resetSceneObjects, getThreeObjects, currentNodeMaterial, normalMaterial } from "./shared-three"
 
 let coordsToRendered = {}
 let rendered = []
@@ -65,7 +59,7 @@ const flattenMatrixToVertexList = (mat) => {
 }
 
 const findOrthocenter = (mat) => {
-    return multiply(FLATTENER, multiply(mat, [1, 1, 1, 1]))._data
+    return multiply(FLATTENER, multiply(mat, [0.25, 0.25, 0.25, 0.25]))._data
 }
 
 const d = matrix([
@@ -127,7 +121,7 @@ export const performUnfoldingSimplex = (direction, internal) => {
     current4d = newVerts
     if (internal) {
         let simplexRef = coordsToRendered[coordKey]
-        simplexRef.material = blueMaterial
+        simplexRef.material = currentNodeMaterial
 
         current = simplexRef
         internal = true
@@ -136,7 +130,7 @@ export const performUnfoldingSimplex = (direction, internal) => {
 
         //const simplexGeom =  new PolyhedronGeometry(project(newVerts), flatten(faces), 1, 0)
         const simplexGeom =  new ConvexGeometry(project(newVerts))
-        const simplex = new Mesh(simplexGeom, blueMaterial)
+        const simplex = new Mesh(simplexGeom, currentNodeMaterial)
 
         current = simplex
         rendered.push(simplex)
@@ -146,7 +140,9 @@ export const performUnfoldingSimplex = (direction, internal) => {
 
         render()
 
-        controls.target = new Vector3(newVerts[0][0]/2, newVerts[0][1]/2, newVerts[0][2]/2)
+        let orth = findOrthocenter(newVerts)
+        controls.target = new Vector3(orth[0]/2, orth[1]/2, orth[2]/2)
+        //controls.target = new Vector3(2*newVerts[0][0]/3, 2*newVerts[0][1]/3, 2*newVerts[0][2]/3)
     }
     
     render()
@@ -166,11 +162,13 @@ export const undoUnfoldingSimplex = (lastDirection, internal) => {
 
     resetMaterial()
 
-    last.material = blueMaterial
+    last.material = currentNodeMaterial
     current = last
     current4d = last4d
 
-    controls.target = new Vector3(current4d[0][0]/2, current4d[0][1]/2, current4d[0][2]/2)
+    let orth = findOrthocenter(current4d)
+    controls.target = new Vector3(orth[0]/2, orth[1]/2, orth[2]/2)
+    //controls.target = new Vector3(2*current4d[0][0]/3, 2*current4d[0][1]/3, 2*current4d[0][2]/3)
     
     render()
 }
@@ -206,12 +204,9 @@ const render = () => {
 const initializeSimplexScene = () => {
     let {scene} = getThreeObjects()
 
-    const light = new HemisphereLight( 0xffffff, 0x080820, 1 );
-    scene.add( light )
-
     //const simplexGeom =  new PolyhedronGeometry(flatten(initialSimplexVertices), flatten(faces), 1, 0)
     const simplexGeom =  new ConvexGeometry(project(d))
-    const simplex = new Mesh(simplexGeom, blueMaterial)
+    const simplex = new Mesh(simplexGeom, currentNodeMaterial)
     current4d = d._data
     last4d = d._data
     current = simplex
