@@ -1,27 +1,5 @@
-#controls {
-    width: 500px;
-    height: 500px;
-    display: inline-block;
-    margin-right: 1em;
-}
-
-#vizcontainer {
-    display: inline-block;
-    height: 70vh;
-}
-
-#viz {
-    width: 100%;
-    height: 100%;
-    display: inline-block;
-}
-
 .reset-button {
     margin: 1em auto;
-}
-
-.left-pane {
-    border-right: solid;
 }
 
 #shape-selectors {
@@ -43,5 +21,36 @@
 
 #unfolding-viz {
     flex: 0 1 auto;
-    padding: 2em 2em 0 2em;
+    padding: 2em 2em 2em 2em;
+}
+
+#controls {
+    width: 500px;
+    height: 500px;
+    display: inline-block;
+    margin-right: 1em;
+}
+
+#vizcontainer {
+    display: inline-block;
+    height: 60vh;
+}
+
+#viz {
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+}
+
+.instructions {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.subinstructions {
+    font-size: 14px;
+}
+
+.right {
+    margin-left: auto;
 }
