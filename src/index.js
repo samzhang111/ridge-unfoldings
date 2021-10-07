@@ -160,9 +160,9 @@ simplexConfiguration = {
         sign: 1,
     },
     sceneConfiguration: {
-        cameraX: 2,
-        cameraY: 3,
-        cameraZ: 4,
+        cameraX: 3,
+        cameraY: 4,
+        cameraZ: 5,
     }
 }
 

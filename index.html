@@ -18,15 +18,16 @@
                 <a id="select-orthoplex" class="waves-effect waves-light btn-small shape-selector">Orthoplex</a>
             </div>
 
-            <div>Unfold these 4 dimensional objects by clicking on nodes on their corresponding graphs. Your current position is the blue node. You can unfold in the direction of black nodes.</div>
+            <div id="unfolding-parent">
 
-            <div class="row">
-                    <div class="col s5 tall-vw left-pane">
+                    <div id="unfolding-controls">
+                        <h4>Click black nodes to unfold</h4>
                         <div id="controls" class="control-graph"></div>
                     </div>
-                    <div class="col s7 right-pane">
+
+                    <div id="unfolding-viz">
                         <a class="waves-effect waves-light btn-large reset-button"><i class="material-icons left">autorenew</i>Reset</a>
-                        <div id="vizcontainer" class="tall-vw">
+                        <div id="vizcontainer">
                             <canvas id="viz"></canvas>
                         </div>
                     </div>
