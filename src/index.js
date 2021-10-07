@@ -1,5 +1,5 @@
 import JXG from "jsxgraph"
-import { createPoints, createControllerEdges, redrawBoard, proposeMove3d, unproposeMove3d, makeMove3d, createEdges } from "./shared-controls"
+import { createPoints, createControllerEdges, redrawBoard, makeMove3d, createEdges } from "./shared-controls"
 import {resetSceneObjects } from "./shared-three"
 import {initializeCubeCanvas, performUnfoldingCube, undoUnfoldingCube, resetSceneCube} from "./three-cube"
 import {initializeSimplexCanvas, performUnfoldingSimplex, undoUnfoldingSimplex, resetSceneSimplex} from "./three-plex"
@@ -21,9 +21,9 @@ let boardState = {
     moved3d: false,
     proposed3d: false,
 }
-let cubeConfiguration = {}
-let simplexConfiguration = {}
-let orthoplexConfiguration = {}
+let cubeConfig = {}
+let simplexConfig = {}
+let orthoConfig = {}
 let selectedShape = "cube"
 
 const getBoardObjects = () => {
@@ -127,15 +127,94 @@ const makeSimplexMove = (i, boardObjectGetter, config) => {
     redrawBoard(i, getBoardObjects(), config)
 }
 
+/***************************
+ * Orthoplex specific functions
+***************************/
+
+const orthoplexCoords = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 1],
+    [0, 0, 1, 0],
+    [0, 0, 1, 1],
+    [0, 1, 0, 0],
+    [0, 1, 0, 1],
+    [0, 1, 1, 0],
+    [0, 1, 1, 1],
+    [1, 0, 0, 0],
+    [1, 0, 0, 1],
+    [1, 0, 1, 0],
+    [1, 0, 1, 1],
+    [1, 1, 0, 0],
+    [1, 1, 0, 1],
+    [1, 1, 1, 0],
+    [1, 1, 1, 1],
+]
+
+const directions = ["x", "y", "z", "w"]
+
+const whichIndexChanged = (orth1, orth2) => {
+    /* orth1 and orth2 are both arrays with four elements 
+     * 
+     * if their hamming distance is 1, return the index that changed
+     * if their hamming distance is not 1, return -1
+     * */
+
+    let changedCoord = -1
+    for (let i = 0; i < orth1.length; i++) {
+        if (orth1[i] != orth2[i]) {
+            if (changedCoord == -1) {
+                changedCoord = i
+            }
+            else {
+                return -1
+            }
+        }
+    }
+
+    return changedCoord
+}
+
+const makeOrthoplexUnfolding = (index, boardState) => {
+    let orth1 = orthoplexCoords[boardState.currentNode]
+    let orth2 = orthoplexCoords[index]
+    let changedCoord = whichIndexChanged(orth1, orth2)
+
+    const direction = directions[changedCoord]
+    performUnfoldingSimplex(direction, boardState.internal)
+}
+
+const undoOrthoplexUnfolding = (index, boardState) => {
+    let orth1 = orthoplexCoords[boardState.currentNode]
+    let orth2 = orthoplexCoords[index]
+    let changedCoord = whichIndexChanged(orth1, orth2)
+
+    const direction = directions[changedCoord]
+    undoUnfoldingSimplex(direction, boardState.internal)
+}
+
+const makeOrthoplexMove = (i, boardObjectGetter, config) => {
+    makeMove3d(i, boardObjectGetter, config)
+
+    redrawBoard(i, getBoardObjects(), config)
+}
+
+
+const isValidMoveOrthoplex = (i, j) => {
+    let orth1 = orthoplexCoords[i]
+    let orth2 = orthoplexCoords[j]
+
+    let changedCoord = whichIndexChanged(orth1, orth2)
+
+    return (changedCoord != -1)
+}
+
 
 
 /***************************
  * Configurations
 ***************************/
 
-cubeConfiguration = {
-    proposer: proposeMove3d,
-    unproposer: unproposeMove3d,
+cubeConfig = {
     isValidMove: isValidMoveRobertsGraph,
     unfolder: makeCubeUnfolding,
     undoUnfold: undoCubeUnfolding,
@@ -148,9 +227,7 @@ cubeConfiguration = {
     }
 }
 
-simplexConfiguration = {
-    proposer: proposeMove3d,
-    unproposer: unproposeMove3d,
+simplexConfig = {
     isValidMove: isValidMoveSimplex,
     unfolder: makeSimplexUnfolding,
     undoUnfold: undoSimplexUnfolding,
@@ -166,6 +243,19 @@ simplexConfiguration = {
     }
 }
 
+orthoConfig = {
+    isValidMove: isValidMoveOrthoplex,
+    unfolder: makeOrthoplexUnfolding,
+    undoUnfold: undoOrthoplexUnfolding,
+    mover: makeOrthoplexMove,
+    defaultPathOrder: [],
+    sceneConfiguration: {
+        cameraX: 5,
+        cameraY: 6,
+        cameraZ: 7,
+    }
+}
+
 /***************************
  * Generic view setup
 ***************************/
@@ -173,10 +263,10 @@ simplexConfiguration = {
 JXG.Options.text.fontSize = 20;
 const boardWidth = 1.1
 board3d = JXG.JSXGraph.initBoard("controls", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
-points3d = createPoints(8, getBoardObjects, cubeConfiguration)
+points3d = createPoints(8, getBoardObjects, cubeConfig)
 pathOrder3d = range(8)
-validEdges = createEdges(getBoardObjects(), cubeConfiguration)
-initializeCubeCanvas(cubeConfiguration.sceneConfiguration)
+validEdges = createEdges(getBoardObjects(), cubeConfig)
+initializeCubeCanvas(cubeConfig.sceneConfiguration)
 
 M.AutoInit();
 
@@ -208,24 +298,28 @@ const selectShape = (shape) => {
     let numPoints
 
     if (shape == "cube") {
-        config = cubeConfiguration
-        numPoints = 8
-        resetSceneCube(config.sceneConfiguration)
+        resetSceneCube(cubeConfig.sceneConfiguration)
 
-        clearAll(config)
-        points3d = createPoints(numPoints, getBoardObjects, config)
-        validEdges = createEdges(getBoardObjects(), config)
-        initializeCubeCanvas(config.sceneConfiguration)
+        clearAll(cubeConfig)
+        points3d = createPoints(8, getBoardObjects, cubeConfig)
+        validEdges = createEdges(getBoardObjects(), cubeConfig)
+        initializeCubeCanvas(cubeConfig.sceneConfiguration)
     }
     else if (shape == "simplex") {
-        config = simplexConfiguration
-        numPoints = 5
-        resetSceneSimplex(config.sceneConfiguration)
+        resetSceneSimplex(simplexConfig.sceneConfiguration)
 
-        clearAll(config)
-        points3d = createPoints(numPoints, getBoardObjects, config)
-        validEdges = createEdges(getBoardObjects(), config)
-        initializeSimplexCanvas(config.sceneConfiguration)
+        clearAll(simplexConfig)
+        points3d = createPoints(5, getBoardObjects, simplexConfig)
+        validEdges = createEdges(getBoardObjects(), simplexConfig)
+        initializeSimplexCanvas(simplexConfig.sceneConfiguration)
+    }
+    else if (shape == "orthoplex") {
+        resetSceneSimplex(orthoConfig.sceneConfiguration)
+
+        clearAll(orthoConfig)
+        points3d = createPoints(16, getBoardObjects, orthoConfig)
+        validEdges = createEdges(getBoardObjects(), orthoConfig)
+        initializeSimplexCanvas(orthoConfig.sceneConfiguration)
     }
 
 }

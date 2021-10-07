@@ -100,8 +100,8 @@ export const createPoints = (n, boardObjectGetter, config) => {
     }
 
     for (let i=0; i<points.length; i++) {
-        points[i].on("mouseover", () => { config.proposer(i, boardObjectGetter, config) } )
-        points[i].on("mouseout", () => { config.unproposer(i, boardObjectGetter, config) } )
+        points[i].on("mouseover", () => { proposeMove3d(i, boardObjectGetter, config) } )
+        points[i].on("mouseout", () => { unproposeMove3d(i, boardObjectGetter, config) } )
         points[i].on("mousedown", () => { config.mover(i, boardObjectGetter, config) } )
         points[i].on("touchstart", () => { config.mover(i, boardObjectGetter, config) } )
     }
