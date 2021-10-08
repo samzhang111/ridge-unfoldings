@@ -11,7 +11,7 @@ const transparent = true
 const opacity = 0.8
 const wireframe = false
 export const currentNodeMaterial = new MeshLambertMaterial({color: new Color(CURRENT_NODE_COLOR), opacity, wireframe, transparent})
-export const normalMaterial = new MeshLambertMaterial({color: new Color(0x00ff00), opacity, wireframe, transparent})
+export const normalMaterial = new MeshLambertMaterial({color: new Color(0x039be5), opacity, wireframe, transparent})
 //export const normalMaterial = new MeshNormalMaterial({opacity, wireframe, transparent})
 
 export const getThreeObjects = () => {

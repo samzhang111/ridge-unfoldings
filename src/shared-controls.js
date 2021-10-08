@@ -3,8 +3,8 @@ import {setPointColor} from "./jsxhelpers"
 import find from "lodash/find"
 
 const CURRENT_NODE_COLOR = "black"
-const VISITABLE_NODE_COLOR = "lime"
-const VISITABLE_NODE_COLOR_INTERIOR = "green"
+const VISITABLE_NODE_COLOR = "#039be5"
+const VISITABLE_NODE_COLOR_INTERIOR = "#026c9f"
 const UNVISITABLE_NODE_COLOR = "red"
 const UNVISITABLE_NODE_COLOR_INTERIOR = "#990000"
 
@@ -36,7 +36,7 @@ const initializeControllerEdges = (boardObjects, config) => {
                     straightLast: false,
                     strokeColor: 'black',
                     highlightStrokeColor: 'black',
-                    strokeWidth: 0.2,
+                    strokeWidth: 0.3,
                     fixed: true,
                 })
             }
@@ -55,7 +55,7 @@ export const createControllerEdges = (i, boardObjects, config) => {
     let { points, validEdges, treeEdges, board } = boardObjects
     for (let j=0; j<points.length; j++) {
         for (let k=j+1; k<points.length; k++) {
-            let strokeWidth = 0.2
+            let strokeWidth = 0.3
             if (!config.isValidMove(k, j)) {
                 continue
             }
@@ -78,7 +78,7 @@ export const createControllerEdges = (i, boardObjects, config) => {
         let x = Math.min(edge[0], edge[1])
         let y = Math.max(edge[0], edge[1])
 
-        validEdges[x][y - x - 1].setAttribute({strokeWidth: 3, strokeColor: 'green', highlightStrokeColor: 'green'})
+        validEdges[x][y - x - 1].setAttribute({strokeWidth: 4, strokeColor: VISITABLE_NODE_COLOR_INTERIOR, highlightStrokeColor: VISITABLE_NODE_COLOR_INTERIOR})
     }
 }
 
@@ -90,12 +90,12 @@ export const createPoints = (n, boardObjectGetter, config) => {
     let points = []
     let boardObjects = boardObjectGetter()
     for (let i=1; i<=n; i++) {
-        let angle = ((n/2 + i) * 2 * Math.PI / n)
+        let angle = (((n - 1)/2 + i) * 2 * Math.PI / n)
         let x = Math.cos(angle)
         let y = Math.sin(angle)
         let p = boardObjects.board.create('point',[x, y], {
             name: '',
-            size:24,
+            size:20,
             fixed: true,
             color: "black",
         });
@@ -106,8 +106,6 @@ export const createPoints = (n, boardObjectGetter, config) => {
         points[i].on("mouseover", () => { proposeMove3d(i, boardObjectGetter, config) } )
         points[i].on("mouseout", () => { unproposeMove3d(i, boardObjectGetter, config) } )
         points[i].on("mousedown", () => { config.mover(i, boardObjectGetter, config) } )
-        points[i].on("touchstart", () => { proposeMove3d(i, boardObjectGetter, config) } )
-        points[i].on("touchend", () => { config.mover(i, boardObjectGetter, config) } )
     }
 
     return points

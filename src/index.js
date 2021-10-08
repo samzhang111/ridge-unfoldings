@@ -225,9 +225,9 @@ cubeConfig = {
     mover: makeCubeMove,
     defaultPathOrder: range(8),
     sceneConfiguration: {
-        cameraX: 5,
-        cameraY: 6,
-        cameraZ: 7,
+        cameraX: 4.5,
+        cameraY: 5.5,
+        cameraZ: 6.5,
     }
 }
 
@@ -254,9 +254,9 @@ orthoConfig = {
     mover: makeOrthoplexMove,
     defaultPathOrder: [],
     sceneConfiguration: {
-        cameraX: 5,
-        cameraY: 6,
-        cameraZ: 7,
+        cameraX: 4.5,
+        cameraY: 5.5,
+        cameraZ: 6.5,
     }
 }
 
