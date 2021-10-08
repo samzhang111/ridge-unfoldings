@@ -266,7 +266,7 @@ orthoConfig = {
 
 JXG.Options.text.fontSize = 20;
 const boardWidth = 1.1
-board3d = JXG.JSXGraph.initBoard("controls", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false});
+board3d = JXG.JSXGraph.initBoard("controls", {boundingbox: [-boardWidth, boardWidth, boardWidth, -boardWidth], showCopyright: false, zoomX: 0.9, zoomY: 0.9, showNavigation: false, showInfobox: false, drag: {enabled: false}, pan: {enabled: false}});
 points3d = createPoints(8, getBoardObjects, cubeConfig)
 pathOrder3d = range(8)
 validEdges = createEdges(getBoardObjects(), cubeConfig)
