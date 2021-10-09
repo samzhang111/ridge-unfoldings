@@ -91,6 +91,9 @@ export const createPoints = (n, boardObjectGetter, config) => {
     let boardObjects = boardObjectGetter()
     for (let i=1; i<=n; i++) {
         let angle = (((n - 1)/2 + i) * 2 * Math.PI / n)
+        if (n % 2 == 1) {
+            angle = (((n - 1/2)/2 + i) * 2 * Math.PI / n)
+        }
         let x = Math.cos(angle)
         let y = Math.sin(angle)
         let p = boardObjects.board.create('point',[x, y], {
