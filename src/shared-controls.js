@@ -152,8 +152,6 @@ export const redrawBoard = (i, boardObjects, config) => {
                 setPointColor(points[y], UNVISITABLE_NODE_COLOR_INTERIOR)
             }
         }
-        console.log({i, x, y, validNodes})
-
     })
 
     setPointColor(points[i], CURRENT_NODE_COLOR)
