@@ -42,17 +42,25 @@ const toThreeJsVectors = (vec3s) => {
     return result
 }
 
-const project = (mat) => {
-    return toThreeJsVectors(flattenMatrixToVertexList(mat))
+const shrinkTowardOrthocenter = (x, orthX, factor) => {
+    /* factor is between 0 and 1, and explains how much to shrink by */
+    return (x - orthX)*factor + orthX
 }
 
-const flattenMatrixToVertexList = (mat) => {
+const project = (mat, orthocenter) => {
+    return toThreeJsVectors(flattenMatrixToVertexList(mat, orthocenter))
+}
+
+const SHRINK_FACTOR = 1 / 1.2
+//const SHRINK_FACTOR = 1
+
+const flattenMatrixToVertexList = (mat, orthocenter) => {
     let mat3 = multiply(FLATTENER, mat)._data
     let verts = [
-        [mat3[0][0], mat3[1][0], mat3[2][0]],
-        [mat3[0][1], mat3[1][1], mat3[2][1]],
-        [mat3[0][2], mat3[1][2], mat3[2][2]],
-        [mat3[0][3], mat3[1][3], mat3[2][3]],
+        [shrinkTowardOrthocenter(mat3[0][0], orthocenter[0], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[1][0], orthocenter[1], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[2][0], orthocenter[2], SHRINK_FACTOR)],
+        [shrinkTowardOrthocenter(mat3[0][1], orthocenter[0], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[1][1], orthocenter[1], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[2][1], orthocenter[2], SHRINK_FACTOR)],
+        [shrinkTowardOrthocenter(mat3[0][2], orthocenter[0], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[1][2], orthocenter[1], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[2][2], orthocenter[2], SHRINK_FACTOR)],
+        [shrinkTowardOrthocenter(mat3[0][3], orthocenter[0], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[1][3], orthocenter[1], SHRINK_FACTOR), shrinkTowardOrthocenter(mat3[2][3], orthocenter[2], SHRINK_FACTOR)],
     ]
 
     return verts
@@ -128,8 +136,8 @@ export const performUnfoldingSimplex = (direction, internal) => {
     }
     else {
 
-        //const simplexGeom =  new PolyhedronGeometry(project(newVerts), flatten(faces), 1, 0)
-        const simplexGeom =  new ConvexGeometry(project(newVerts))
+        let orth = findOrthocenter(newVerts)
+        const simplexGeom =  new ConvexGeometry(project(newVerts, orth))
         const simplex = new Mesh(simplexGeom, currentNodeMaterial)
 
         current = simplex
@@ -140,7 +148,6 @@ export const performUnfoldingSimplex = (direction, internal) => {
 
         render()
 
-        let orth = findOrthocenter(newVerts)
         controls.target = new Vector3(orth[0]/2, orth[1]/2, orth[2]/2)
         //controls.target = new Vector3(2*newVerts[0][0]/3, 2*newVerts[0][1]/3, 2*newVerts[0][2]/3)
     }
@@ -204,8 +211,8 @@ const render = () => {
 const initializeSimplexScene = () => {
     let {scene} = getThreeObjects()
 
-    //const simplexGeom =  new PolyhedronGeometry(flatten(initialSimplexVertices), flatten(faces), 1, 0)
-    const simplexGeom =  new ConvexGeometry(project(d))
+    let orth = findOrthocenter(d)
+    const simplexGeom =  new ConvexGeometry(project(d, orth))
     const simplex = new Mesh(simplexGeom, currentNodeMaterial)
     current4d = d._data
     last4d = d._data

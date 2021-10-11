@@ -85,6 +85,10 @@ const undoCubeUnfolding = (index, boardState) => {
 }
 
 const makeCubeMove = (i, boardObjectGetter, config) => {
+    if (!config.isValidMove(i, boardState.currentNode)) {
+        return
+    }
+    if (!boardState.proposed3d) { return }
     makeMove3d(i, boardObjectGetter, config)
 
     const clickedNodeNewIndex = pathOrder3d.indexOf(i)
@@ -97,6 +101,10 @@ const makeCubeMove = (i, boardObjectGetter, config) => {
     pathOrder3d = newOrder
 
     redrawBoard(i, getBoardObjects(), config)
+
+    if (visitedNodes.length == 8) {
+        highlightResetButton()
+    }
 }
 
 
@@ -119,12 +127,21 @@ const undoSimplexUnfolding = (index, boardState) => {
 }
 
 const makeSimplexMove = (i, boardObjectGetter, config) => {
+    if (!config.isValidMove(i, boardState.currentNode)) {
+        return
+    }
+    if (!boardState.proposed3d) { return }
+
     makeMove3d(i, boardObjectGetter, config)
 
     pathOrder3d.center = i
     pathOrder3d.sign *= -1
 
     redrawBoard(i, getBoardObjects(), config)
+
+    if (visitedNodes.length == 5) {
+        highlightResetButton()
+    }
 }
 
 /***************************
@@ -196,10 +213,15 @@ const makeOrthoplexMove = (i, boardObjectGetter, config) => {
     if (!isValidMoveOrthoplex(i, boardState.currentNode)) {
         return
     }
+    if (!boardState.proposed3d) { return }
 
     makeMove3d(i, boardObjectGetter, config)
 
     redrawBoard(i, getBoardObjects(), config)
+
+    if (visitedNodes.length == 16) {
+        highlightResetButton()
+    }
 }
 
 
@@ -279,6 +301,12 @@ resetButton.addEventListener("click", resetAll)
 
 const SELECTED_CLASS = "blue"
 
+const highlightResetButton = () => {
+    let resetButton = document.querySelector(".reset-button")
+    resetButton.classList.remove("black")
+    resetButton.classList.add("red")
+}
+
 const selectShape = (shape) => {
     selectedShape = shape
 
@@ -293,6 +321,10 @@ const selectShape = (shape) => {
 
     let selectedShapeElem = document.querySelector(`#select-${shape}`)
     selectedShapeElem.classList.add(SELECTED_CLASS)
+
+    let resetButton = document.querySelector(".reset-button")
+    resetButton.classList.remove("red")
+    resetButton.classList.add("black")
 
     /*******
     // Reset app using relevant configuration

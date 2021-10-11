@@ -130,19 +130,30 @@ export const redrawBoard = (i, boardObjects, config) => {
         }
     }
 
+    let validNodes = []
     treeEdges.forEach(pair => {
         let x = pair[0]
         let y = pair[1]
 
-        setPointColor(points[x], UNVISITABLE_NODE_COLOR_INTERIOR)
-        setPointColor(points[y], UNVISITABLE_NODE_COLOR_INTERIOR)
-
         if (x == i) {
             setPointColor(points[y], VISITABLE_NODE_COLOR_INTERIOR)
+            validNodes.push(y)
         }
         else if (y == i) {
             setPointColor(points[x], VISITABLE_NODE_COLOR_INTERIOR)
+            validNodes.push(x)
         }
+        else {
+            if (validNodes.indexOf(x) == -1) {
+                setPointColor(points[x], UNVISITABLE_NODE_COLOR_INTERIOR)
+            }
+
+            if (validNodes.indexOf(y) == -1) {
+                setPointColor(points[y], UNVISITABLE_NODE_COLOR_INTERIOR)
+            }
+        }
+        console.log({i, x, y, validNodes})
+
     })
 
     setPointColor(points[i], CURRENT_NODE_COLOR)
@@ -182,6 +193,12 @@ export const unproposeMove3d = (i, boardObjectGetter, config) => {
 export const proposeMove3d = (i, boardObjectGetter, config) => {
     let boardObjects = boardObjectGetter()
     let { points, validEdges, treeEdges, board, boardState, visitedNodes } = boardObjects
+
+    // cannot double propose moves
+    if (boardState.proposed3d) {
+        return
+    }
+
     if (!config.isValidMove(i, boardState.currentNode)) {
         return
     }
@@ -206,7 +223,6 @@ export const proposeMove3d = (i, boardObjectGetter, config) => {
 
     boardState.proposed3d = true
 }
-
 
 export const makeMove3d = (i, boardObjectGetter, config) => {
     let boardObjects = boardObjectGetter()

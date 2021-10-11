@@ -23,27 +23,29 @@ const centroidToString = () => {
     return `${centroid.x}-${centroid.y}-${centroid.z}`
 }
 
+const CUBE_SPACING = 1.1
+
 const updateCentroid = move => {
     if (move.direction == 'x') {
-        centroid.x += move.sign*1.1
+        centroid.x += move.sign*CUBE_SPACING
     }
     else if (move.direction == 'y') {
-        centroid.y += move.sign*1.1
+        centroid.y += move.sign*CUBE_SPACING
     }
     else if (move.direction == 'z') {
-        centroid.z += move.sign*1.1
+        centroid.z += move.sign*CUBE_SPACING
     }
 }
 
 const undoUpdateCentroid = move => {
     if (move.direction == 'x') {
-        centroid.x -= move.sign*1.1
+        centroid.x -= move.sign*CUBE_SPACING
     }
     else if (move.direction == 'y') {
-        centroid.y -= move.sign*1.1
+        centroid.y -= move.sign*CUBE_SPACING
     }
     else if (move.direction == 'z') {
-        centroid.z -= move.sign*1.1
+        centroid.z -= move.sign*CUBE_SPACING
     }
 }
 
