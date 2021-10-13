@@ -23,7 +23,8 @@ const centroidToString = () => {
     return `${centroid.x}-${centroid.y}-${centroid.z}`
 }
 
-const CUBE_SPACING = 1.1
+//const CUBE_SPACING = 1.1
+const CUBE_SPACING = 1
 
 const updateCentroid = move => {
     if (move.direction == 'x') {

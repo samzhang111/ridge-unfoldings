@@ -51,8 +51,8 @@ const project = (mat, orthocenter) => {
     return toThreeJsVectors(flattenMatrixToVertexList(mat, orthocenter))
 }
 
-const SHRINK_FACTOR = 1 / 1.2
-//const SHRINK_FACTOR = 1
+//const SHRINK_FACTOR = 1 / 1.2
+const SHRINK_FACTOR = 1
 
 const flattenMatrixToVertexList = (mat, orthocenter) => {
     let mat3 = multiply(FLATTENER, mat)._data
