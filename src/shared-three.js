@@ -6,12 +6,14 @@ const container = document.querySelector("#vizcontainer")
 
 let scene, camera, renderer, controls
 
-const CURRENT_NODE_COLOR = 0x222222
+//const CURRENT_NODE_COLOR = 0x222222
+const CURRENT_NODE_COLOR = 0xFF8600
+const NODE_COLOR = 0x039be5
 const transparent = true
 const opacity = 0.8
 const wireframe = false
 export const currentNodeMaterial = new MeshLambertMaterial({color: new Color(CURRENT_NODE_COLOR), opacity, wireframe, transparent})
-export const normalMaterial = new MeshLambertMaterial({color: new Color(0x039be5), opacity, wireframe, transparent})
+export const normalMaterial = new MeshLambertMaterial({color: new Color(NODE_COLOR), opacity, wireframe, transparent})
 //export const normalMaterial = new MeshNormalMaterial({opacity, wireframe, transparent})
 
 export const getThreeObjects = () => {

@@ -2,11 +2,12 @@ import JXG from "jsxgraph"
 import {setPointColor} from "./jsxhelpers"
 import find from "lodash/find"
 
-const CURRENT_NODE_COLOR = "black"
+//const CURRENT_NODE_COLOR = "green"
+const CURRENT_NODE_COLOR = "#FF8600"
 const VISITABLE_NODE_COLOR = "#039be5"
 const VISITABLE_NODE_COLOR_INTERIOR = "#026c9f"
-const UNVISITABLE_NODE_COLOR = "red"
-const UNVISITABLE_NODE_COLOR_INTERIOR = "#990000"
+const UNVISITABLE_NODE_COLOR = "black"
+const UNVISITABLE_NODE_COLOR_INTERIOR = "#333333"
 
 
 /*********
@@ -100,7 +101,7 @@ export const createPoints = (n, boardObjectGetter, config) => {
             name: '',
             size:20,
             fixed: true,
-            color: "black",
+            color: CURRENT_NODE_COLOR,
         });
         points.push(p)
     }
